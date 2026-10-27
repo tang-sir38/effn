@@ -1,0 +1,171 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\title{How many donors do you actually have?\\[2pt]
+\large A short introduction to \textbf{effn}}
+\author{Chaohua Tang}
+\date{\today}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE, keep.source=FALSE}
+\maketitle
+
+<<setup, echo=FALSE, results=hide>>=
+library(effn)
+set.seed(20261021)
+@
+
+\section{What the package answers}
+
+A single-cell differential expression analysis usually reports a sample size
+equal to the number of cells. That number is not the number of independent
+replicates. \texttt{effn} takes a count matrix with donor labels and returns
+three things: the effective number of donors after the depth penalty, the
+minimum detectable effect at a chosen power, and the number of additional
+donors required to support a target effect.
+
+The package has three functions: \texttt{effn()} does the estimation,
+\texttt{prescribe()} inverts it, and \texttt{plot\_effn()} draws the result.
+
+\section{Example 1: a small simulated dataset}
+
+We simulate 120 genes, 8 donors (4 per group) and 25 cells per donor, with a
+true 1.4-fold effect on the case group.
+
+<<ex1sim>>=
+sim <- local({
+  G <- 120; nd <- 8; cells <- 25
+  donors <- paste0("d", seq_len(nd))
+  grp <- rep(c("ctrl", "case"), each = nd / 2)
+  cell_donor <- rep(donors, each = cells)
+  mu <- exp(rnorm(G, 2.2, 0.8))
+  b <- matrix(rnorm(G * nd, 0, 0.45), nrow = G)
+  eff <- ifelse(grp == "case", log2(1.4), 0)
+  base <- exp(outer(log(mu), rep(1, nd)) + b + outer(rep(1, G), eff))
+  cnt <- matrix(0, G, length(cell_donor))
+  for (j in seq_along(cell_donor)) {
+    cnt[, j] <- rnbinom(G, mu = base[, match(cell_donor[j], donors)], size = 10)
+  }
+  rownames(cnt) <- paste0("g", seq_len(G))
+  list(counts = cnt, donor = cell_donor,
+       group = rep(grp, each = cells))
+})
+dim(sim$counts)
+@
+
+The call takes the matrix, the group of each cell and the donor of each cell.
+
+<<ex1fit>>=
+rep <- effn(sim$counts, sim$group, sim$donor, n_boot = 100, n_tech = 10)
+rep
+@
+
+The printed line \texttt{n\_eff} is the number of donors that survive the depth
+penalty. It is bounded above by the number of donors, never by the number of
+cells. \texttt{loss} splits the total loss into the part caused by treating
+cells as replicates and the part caused by limited depth.
+
+\section{Example 2: the prescription}
+
+\texttt{prescribe()} answers the question the package exists for: how many more
+donors are needed to detect a given effect?
+
+<<ex2>>=
+p15 <- prescribe(rep, target_mde = log2(1.5))
+p15$n_required
+p15$n_current
+p15$shortfall
+p15$sentence
+@
+
+The interval comes from resampling donors, not cells, so it reflects the
+uncertainty that actually limits the design.
+
+\section{Example 3: a single gene and the plot}
+
+<<ex3>>=
+head(prescribe(rep, target_mde = log2(1.5), gene = "g1")$sentence)
+pdf(NULL)
+panels <- plot_effn(rep, target_mde = log2(1.5))
+dev.off()
+names(panels)
+@
+
+\section{Example 4: the 800-cell subsample that ships with the package}
+
+The paper reports a checker that does not need the 145 MB download: 50 cells per
+donor and condition from GSE96583, 8 donors, both groups present.
+
+<<ex4load>>=
+f <- system.file("extdata", "gse96583_small.rds", package = "effn")
+small <- readRDS(f)
+dim(small$counts)
+table(small$donor, small$group)
+@
+
+The point estimates depend on \texttt{n\_tech}, the number of within-donor
+resamples; \texttt{n\_boot} only moves the confidence intervals. With the seed
+used in the paper the medians below are the published ones.
+
+<<ex4fit>>=
+small_rep <- effn(small$counts, small$group, small$donor,
+                  n_boot = 50, n_tech = 40, seed = 20261021)
+unlist(small_rep$summary[c("median_n_eff", "median_mde_log2",
+                           "median_rho_tech")])
+@
+
+\section{Working with real objects}
+
+\texttt{effn()} accepts a \texttt{SingleCellExperiment} or a Seurat object (v4
+or v5); the counts layer is read with the appropriate accessor. The group may be
+passed as a vector or as the name of a metadata column, and donor labels are
+looked up in the sample metadata first. If they are absent the call stops with
+\emph{donor labels unavailable} rather than treating the whole matrix as one
+replicate.
+
+<<ex5, eval=FALSE>>=
+library(SingleCellExperiment)
+sce <- SingleCellExperiment(assays = list(counts = sim$counts),
+                            colData = DataFrame(donor = sim$donor,
+                                                group = sim$group))
+rep2 <- effn(sce, "group")   # column name, same as effn(sce, sim$group)
+@
+
+\section{What the numbers mean}
+
+For gene $g$ the donor-level value is $y_{dg} = \log_2(10^6 c_{dg}/L_d + 1)$,
+where $c_{dg}$ is the sum of raw counts over the cells of donor $d$. The
+observed pooled variance across donors is split into a biological and a
+technical part, $\hat\sigma^2_{\mathrm{obs}} = \hat\sigma^2_{\mathrm{bio}} +
+\hat\sigma^2_{\mathrm{tech}}$. The technical part is measured, not extrapolated:
+the default (\texttt{tech = "bootstrap"}) resamples each donor's own cells with
+replacement at the depth that donor has and takes the variance of the resulting
+pseudobulk values, so no scaling law enters. \texttt{tech = "splithalf"} is kept
+as a cheap alternative; it estimates the variance at half depth and needs a
+$1/n$ law to carry it to full depth, which $\log_2(\mathrm{CPM}+1)$ does not
+obey. Then
+\[
+n_{\mathrm{eff}} = \frac{n}{1+\rho}, \qquad
+\rho = \frac{\hat\sigma^2_{\mathrm{tech}}}{\hat\sigma^2_{\mathrm{bio}}},
+\]
+and the minimum detectable effect is
+\[
+\mathrm{MDE} = \left(t_{1-\alpha/2,\,df} + t_{1-\beta,\,df}\right)
+\hat\sigma_{\mathrm{bio}}
+\sqrt{\frac{1}{n_{\mathrm{eff},1}} + \frac{1}{n_{\mathrm{eff},2}}},
+\qquad df = n_1 + n_2 - 2 ,
+\]
+for an unpaired design, and $df = n-1$ for a paired one. The quantile belongs
+to the design, so $df$ counts donors, not effective donors: the effective
+counts already carry the depth penalty into the standard error, and charging it
+to the degrees of freedom as well would shrink $df$ by $1+\rho$ and inflate
+every MDE.
+Exact $t$ quantiles are used; the normal approximation is not.
+
+\end{document}

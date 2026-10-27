@@ -1,0 +1,30 @@
+Package: effn
+Type: Package
+Title: Effective Sample Size and Minimum Detectable Effect for Single-Cell Comparisons
+Version: 1.1.0
+Date: 2026-10-21
+Authors@R: c(
+    person("Chaohua", "Tang", email = "13860904395@163.com",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0004-7080-8993")),
+    person("Lingling", "Zhan", role = "aut"),
+    person("Yingying", "Zheng", role = "aut"),
+    person("Fangfang", "Wu", role = "aut"),
+    person("Hong", "Tan", role = "aut"),
+    person("Lijing", "Lin", role = "aut"))
+Description: Converts a single-cell dataset with donor labels into an effective
+    sample size, a minimum detectable effect, and a prescription of how many
+    additional donors are required to support a target effect. Donor-level
+    biological variance is separated from the residual technical variance of the
+    pseudobulk mean by resampling each donor's own cells at the depth that donor
+    has, so the depth penalty is measured rather than assumed. The minimum
+    detectable effect uses exact t quantiles at the design degrees of freedom
+    instead of the normal approximation, and the prescription is solved by
+    bisection.
+License: GPL-3
+Encoding: UTF-8
+LazyData: false
+Depends: R (>= 4.0)
+Imports: Matrix, methods, stats, utils
+Suggests: SingleCellExperiment, SummarizedExperiment, Seurat, SeuratObject
+NeedsCompilation: no

@@ -1,0 +1,57 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the Application Note below."
+title: "effn: effective sample size and minimum detectable effect for single-cell comparisons"
+abstract: >-
+  Converts a single-cell dataset with donor labels into an effective sample size,
+  a minimum detectable effect, and a prescription of how many additional donors
+  are required to support a target effect. The depth penalty is measured by
+  resampling each donor's own cells at the depth that donor has, and the minimum
+  detectable effect uses exact t quantiles at the design degrees of freedom.
+version: "1.1.0"
+date-released: "2026-10-21"
+license: GPL-3.0-or-later
+type: software
+authors:
+  - family-names: Tang
+    given-names: Chaohua
+    orcid: "https://orcid.org/0009-0004-7080-8993"
+    affiliation: "Department of Gynecology, The 95th Hospital of Putian, Putian, Fujian 351100, China"
+  - family-names: Zhan
+    given-names: Lingling
+    affiliation: "Department of Gynecology, The 95th Hospital of Putian, Putian, Fujian 351100, China"
+  - family-names: Zheng
+    given-names: Yingying
+    affiliation: "Department of Gynecology, The 95th Hospital of Putian, Putian, Fujian 351100, China"
+  - family-names: Wu
+    given-names: Fangfang
+    affiliation: "Department of Gynecology, The 95th Hospital of Putian, Putian, Fujian 351100, China"
+  - family-names: Tan
+    given-names: Hong
+    affiliation: "Department of Gynecology, The 95th Hospital of Putian, Putian, Fujian 351100, China"
+  - family-names: Lin
+    given-names: Lijing
+    affiliation: "Department of Gynecology, The 95th Hospital of Putian, Putian, Fujian 351100, China"
+keywords:
+  - single-cell RNA sequencing
+  - pseudoreplication
+  - power
+  - minimum detectable effect
+  - study design
+references:
+  - type: article
+    title: "effn: how many donors and how much depth does a single-cell comparison need?"
+    authors:
+      - family-names: Tang
+        given-names: Chaohua
+      - family-names: Zhan
+        given-names: Lingling
+      - family-names: Zheng
+        given-names: Yingying
+      - family-names: Wu
+        given-names: Fangfang
+      - family-names: Tan
+        given-names: Hong
+      - family-names: Lin
+        given-names: Lijing
+    journal: Bioinformatics
+    status: submitted
