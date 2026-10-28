@@ -20,7 +20,8 @@ This repository accompanies the Application Note:
 
 ```
 effn/         the R package source (install with R CMD INSTALL, or R CMD build then install)
-analysis/     the numbered R scripts (00-13) that produced every table and figure in the paper
+analysis/     the numbered R scripts (00-13) that produced every table and figure in the paper,
+              plus analysis/aux/ for the three helpers that run after them
 data/         where the public input data go; nothing is redistributed here
 ```
 
@@ -31,7 +32,8 @@ The package is base R plus `Matrix`. It has no compiled code.
 ## Install
 
 ```bash
-R CMD INSTALL effn_1.1.0.tar.gz     # or: R CMD INSTALL effn/
+R CMD INSTALL effn_1.1.0.tar.gz     # download the tarball from the Zenodo record below
+R CMD INSTALL effn/                 # or build in place from this source tree
 ```
 
 Requirements: R >= 4.0, `Matrix`. Optional adapters use `SingleCellExperiment` or `Seurat`, neither of which is required for any number in the paper.
@@ -94,6 +96,16 @@ The per-cell demuxlet annotation that carries the donor label (`GSE96583_batch2.
 | `12_small_ci.R` | jackknife against bootstrap intervals on the subsample | stage 10, 11 |
 | `13_quantile_gap.R` | how far the normal approximation understates the MDE, by design df | — |
 
+**3. Three helpers run after the numbered ones** — Table S9 lists which rows of the output folder each of these writes:
+
+| Helper | What it does | Run after |
+|---|---|---|
+| `aux/_probe_scale.R` | the same depth grid on log2(CPM + 1) and on CPM, the data behind Figure 1C | 03 |
+| `aux/corr_within_donor.py` | the per-gene within-donor correlation quoted in the text; needs `gse96583_unpaired_per_gene.tsv.gz` | 07 |
+| `aux/build_ledger.py` | `number_ledger.tsv`, the audit table that maps every number in the paper to the file it came from | 13, and `aux/corr_within_donor.py` |
+
+They read the same `$EFFN_OUT` folder as the numbered scripts and write into it; no number in the main text depends on them, so skipping them loses provenance, not results.
+
 A convenience runner:
 
 ```bash
@@ -133,9 +145,17 @@ An 800-cell subsample (`effn/inst/extdata/gse96583_small.rds`) is included so th
 
 ## Citation
 
-If you use `effn`, please cite the Application Note above. A snapshot of this
-repository (version 1.1.0) is archived on Zenodo; the DOI is given in the paper
-and in the release notes of this repository.
+If you use `effn`, please cite the Application Note above. Version 1.1.0 of this
+repository is archived on Zenodo:
+
+```
+Tang C, Zhan L, Zheng Y, Wu F, Tan H, Lin L. effn: effective sample size and
+minimum detectable effect for single-cell comparisons. Version 1.1.0. Zenodo.
+2026. doi:10.5281/zenodo.23697306
+```
+
+- Version DOI (this release): <https://doi.org/10.5281/zenodo.23697306>
+- Concept DOI (always the latest release): <https://doi.org/10.5281/zenodo.23697305>
 
 `CITATION.cff` in this repository carries the same information in machine-readable form.
 

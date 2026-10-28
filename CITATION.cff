@@ -8,7 +8,10 @@ abstract: >-
   resampling each donor's own cells at the depth that donor has, and the minimum
   detectable effect uses exact t quantiles at the design degrees of freedom.
 version: "1.1.0"
-date-released: "2026-10-21"
+date-released: "2026-10-27"
+doi: "10.5281/zenodo.23697306"
+url: "https://doi.org/10.5281/zenodo.23697306"
+repository-code: "https://github.com/tang-sir38/effn"
 license: GPL-3.0-or-later
 type: software
 authors:
