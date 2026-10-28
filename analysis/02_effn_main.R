@@ -10,7 +10,7 @@ suppressPackageStartupMessages({
   library(effn)
 })
 
-OUT <- Sys.getenv("EFFN_OUT", file.path(Sys.getenv("EFFN_ROOT", "/root/effn"), "out"))
+OUT <- "/root/effn/out"
 RDS <- file.path(OUT, "gse96583_singlets.rds")
 say <- function(...) {
   cat(format(Sys.time(), "[%H:%M:%S] "), ..., "\n", sep = "")

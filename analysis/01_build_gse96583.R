@@ -10,9 +10,9 @@ suppressPackageStartupMessages({
   library(effn)
 })
 
-ROOT <- file.path(Sys.getenv("EFFN_ROOT", "/root/effn"), "GSE96583")
+ROOT <- "/root/effn/GSE96583"
 EX   <- file.path(ROOT, "extract")
-OUT  <- Sys.getenv("EFFN_OUT", file.path(Sys.getenv("EFFN_ROOT", "/root/effn"), "out"))
+OUT  <- "/root/effn/out"
 dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
 
 ## ---- 1. genes ------------------------------------------------------------
@@ -80,7 +80,10 @@ utils::write.table(data.frame(barcode = bc, donor = donor, group = stim, celltyp
 ## ---- 4. effn -------------------------------------------------------------
 cat("running effn ...\n")
 t0 <- Sys.time()
-rep1 <- effn(M, group = stim, donor = donor, n_boot = 200L, n_split = 20L,
+## n_tech 是 bootstrap 每个 (donor, condition) 的重抽样次数。默认 40；
+## 早期版本里这个参数叫 n_split，改名后此处未同步，导致脚本对不上包。
+## 40 复现正文的 3.9081 / 1.6342（20 会给 3.9300 / 1.6319，差在 bootstrap 噪声）。
+rep1 <- effn(M, group = stim, donor = donor, n_boot = 200L, n_tech = 40L,
              seed = 20261021L)
 cat("effn took", round(as.numeric(difftime(Sys.time(), t0, units = "mins")), 2), "min\n")
 print(rep1)
@@ -92,7 +95,7 @@ writeLines(jsonlite::toJSON(s, auto_unbox = TRUE, digits = 10, pretty = TRUE),
            file.path(OUT, "gse96583_summary.json"))
 
 ## ---- 5. determinism ------------------------------------------------------
-rep2 <- effn(M, group = stim, donor = donor, n_boot = 200L, n_split = 20L,
+rep2 <- effn(M, group = stim, donor = donor, n_boot = 200L, n_tech = 40L,
              seed = 20261021L)
 same <- identical(rep1$per_gene, rep2$per_gene) && identical(rep1$summary, rep2$summary)
 cat("DETERMINISM identical:", same, "\n")

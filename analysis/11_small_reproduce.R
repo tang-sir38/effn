@@ -26,11 +26,7 @@ suppressPackageStartupMessages({
 })
 
 rds <- file.path(pkg, "inst", "extdata", "gse96583_small.rds")
-if (!file.exists(rds)) rds <- file.path(pkg, "effn", "inst", "extdata", "gse96583_small.rds")
-if (!file.exists(rds)) rds <- system.file("extdata", "gse96583_small.rds", package = "effn")
-if (!nzchar(rds) || !file.exists(rds)) {
-  stop("cannot find gse96583_small.rds; pass the package directory as the first argument")
-}
+stopifnot(file.exists(rds))
 small <- readRDS(rds)
 stopifnot(all(c("counts", "donor", "group") %in% names(small)))
 

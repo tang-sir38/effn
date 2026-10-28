@@ -1,0 +1,7 @@
+metric	value
+median MDE effn (fold)	1.54690005548071
+median MDE limma (fold)	1.33350624277805
+median ratio limma/effn	0.709262674552966
+IQR ratio	0.638-0.794
+genes where limma MDE < effn	3196 / 3369 (94.9%)
+median df.total	20.3028355465125

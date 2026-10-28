@@ -1,0 +1,5 @@
+pi1	alpha_eff	mde_multiplier	median_mde_log2_nominal	median_mde_fold_nominal	median_mde_log2_fdr	median_mde_fold_fdr	n_two_fold_nominal_median	n_two_fold_nominal_q25	n_two_fold_nominal_q75	n_two_fold_fdr_median	n_two_fold_fdr_q25	n_two_fold_fdr_q75	n_two_fold_fdr_unreachable	n_one_point_five_nominal_median	n_one_point_five_nominal_q25	n_one_point_five_nominal_q75	n_one_point_five_fdr_median	n_one_point_five_fdr_q25	n_one_point_five_fdr_q75	n_one_point_five_fdr_unreachable
+0.1	0.00467836257309942	1.52667139232891	0.708607207955011	1.63422565771339	1.08181035278298	2.11669052522346	6	4	8	9	6	14	0	11	6	19	19	11	32	0
+0.2	0.0105263157894737	1.33639454688602	0.708607207955011	1.63422565771339	0.946978808595202	1.92783129781726	6	4	8	8	5	12	0	11	6	19	16	9	27	0
+0.3	0.0180451127819549	1.21660010515735	0.708607207955011	1.63422565771339	0.862091603713323	1.81767164203153	6	4	8	7	5	10	0	11	6	19	15	8	24	0
+0.5	0.0421052631578947	1.03590508657	0.708607207955011	1.63422565771339	0.734049811100761	1.66330162361562	6	4	8	6	4	8	0	11	6	19	12	7	20	0

@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
   library(Matrix)
   library(effn)
 })
-OUT <- Sys.getenv("EFFN_OUT", file.path(Sys.getenv("EFFN_ROOT", "/root/effn"), "out"))
+OUT <- "/root/effn/out"
 ob <- readRDS(file.path(OUT, "gse96583_singlets.rds"))
 M <- as(methods::as(ob$counts, "CsparseMatrix"), "dgCMatrix")
 
